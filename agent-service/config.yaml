@@ -1,0 +1,43 @@
+server:
+  host: "0.0.0.0"
+  port: 8002
+
+llm:
+  provider: "openai"
+  model: "gpt-4o"
+  temperature: 0.7
+  openai:
+    api_base: "https://api.openai.com/v1"
+    api_key: "None"
+  bedrock:
+    region: null
+    profile: null
+    access_key_id: null
+    secret_access_key: null
+    session_token: null
+    endpoint_url: null
+
+mcp:
+  endpoints:
+    - "http://mcp-server:4242/mcp"
+  connect_timeout_seconds: 30
+  max_retries: 5
+
+storage:
+  minio:
+    endpoint: "http://localhost:9000"
+    region: "us-east-1"
+    access_key: "minioadmin"
+    secret_key: "minioadmin"
+    bucket: "data-analyst"
+    secure: false
+
+telemetry:
+  matomo:
+    site_id: 145
+    url: "https://matomo.tools.gap.ic.gov/matomo.php"
+    ssl_verify: false
+
+logging:
+  level: "INFO"
+  json: false

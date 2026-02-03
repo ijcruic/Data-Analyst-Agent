@@ -1,0 +1,34 @@
+agent:
+  api_url: "http://localhost:8002"
+
+uploads:
+  allowed_extensions:
+    - csv
+    - xlsx
+    - json
+    - parquet
+  max_size_mb: 500
+  storage_root: "/tmp/uploads"
+
+sessions:
+  ttl_seconds: 3600
+
+storage:
+  minio:
+    endpoint: "http://localhost:9000"
+    region: "us-east-1"
+    access_key: "minioadmin"
+    secret_key: "minioadmin"
+    bucket: "data-analyst"
+    secure: false
+    presign_expiry_seconds: 600
+
+telemetry:
+  matomo:
+    site_id: 145
+    url: "https://matomo.tools.gap.ic.gov/matomo.php"
+    ssl_verify: false
+
+ui:
+  theme: "light"
+  debug: false

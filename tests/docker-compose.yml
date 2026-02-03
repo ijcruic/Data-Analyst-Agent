@@ -1,0 +1,117 @@
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: agentic-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio-data:/data
+    networks:
+      - agentic
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: agentic-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 minioadmin minioadmin; do
+        echo 'Waiting for MinIO...' && sleep 2;
+      done &&
+      mc mb -p local/data-analyst || true &&
+      mc anonymous set download local/data-analyst || true
+      "
+    networks:
+      - agentic
+    restart: "no"
+
+  mcp-server:
+    build:
+      context: ../mcp-server
+      dockerfile: Dockerfile
+    container_name: agentic-mcp
+    ports:
+      - "4242:4242"
+    volumes:
+      - uploads:/tmp/uploads
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MCP_MINIO_ENDPOINT=http://minio:9000
+      - MCP_MINIO_ACCESS_KEY=minioadmin
+      - MCP_MINIO_SECRET_KEY=minioadmin
+      - MCP_MINIO_BUCKET=data-analyst
+      - MCP_MINIO_SECURE=false
+      - MCP_STORAGE_BACKEND=minio
+      - MCP_MINIO_PUBLIC_ENDPOINT=http://localhost:9000
+    networks:
+      - agentic
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import socket; s=socket.create_connection(('localhost',4242),2); s.close()"]
+      interval: 2s
+      timeout: 15s
+      retries: 30
+      start_period: 10s
+
+  agent-service:
+    build:
+      context: ../agent-service
+      dockerfile: Dockerfile
+    container_name: agentic-agent
+    ports:
+      - "8002:8002"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MCP_URL=http://mcp-server:4242/mcp
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=data-analyst
+      - MINIO_SECURE=false
+    depends_on:
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+      mcp-server:
+        condition: service_healthy
+    networks:
+      - agentic
+
+  web-ui:
+    build:
+      context: ../web-ui
+      dockerfile: Dockerfile
+    container_name: agentic-ui
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads:/tmp/uploads
+    environment:
+      - PYTHONUNBUFFERED=1
+      - WEB_UI_AGENT_URL=http://agent-service:8002
+      - WEB_UI_MINIO_ENDPOINT=http://minio:9000
+      - WEB_UI_MINIO_ACCESS_KEY=minioadmin
+      - WEB_UI_MINIO_SECRET_KEY=minioadmin
+      - WEB_UI_MINIO_BUCKET=data-analyst
+      - WEB_UI_MINIO_SECURE=false
+    depends_on:
+      - minio
+      - minio-init
+      - agent-service
+    networks:
+      - agentic
+
+networks:
+  agentic:
+    driver: bridge
+
+volumes:
+  uploads:
+  minio-data:

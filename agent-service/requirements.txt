@@ -1,0 +1,11 @@
+fastmcp
+mcp
+langgraph>=0.2.10
+langchain-openai
+langchain-aws
+langchain-mcp-adapters
+fastapi
+uvicorn
+nest-asyncio
+python-dotenv
+pyyaml

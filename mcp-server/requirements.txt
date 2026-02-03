@@ -1,0 +1,11 @@
+fastmcp>=1.22.0
+mcp
+pandas
+numpy
+scipy
+scikit-learn
+matplotlib
+seaborn
+boto3
+pyyaml
+requests

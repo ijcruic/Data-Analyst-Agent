@@ -1,0 +1,41 @@
+server:
+  host: "0.0.0.0"
+  port: 4242
+
+storage:
+  backend: "minio"
+  filesystem:
+    root: "/tmp/uploads"
+  minio:
+    endpoint: "http://minio:9000"
+    region: "us-east-1"
+    access_key: "minioadmin"
+    secret_key: "minioadmin"
+    bucket: "data-analyst"
+    secure: false
+    session_prefix: "sessions/"
+    presign_expiry_seconds: 600
+    public_endpoint: "http://localhost:9000"
+
+cleanup:
+  ttl_seconds: 3600
+  interval_seconds: 300
+
+execution:
+  timeout_seconds: 180
+  memory_limit_mb: 512
+  allowed_modules:
+    - pandas
+    - numpy
+    - scipy
+    - sklearn
+    - matplotlib
+    - seaborn
+
+telemetry:
+  matomo:
+    site_id: 145
+    url: "https://matomo.tools.gap.ic.gov/matomo.php"
+    ssl_verify: false
+
+results:
