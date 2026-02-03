@@ -1,0 +1,31 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+
+# Environments
+.env
+.env.*
+.venv/
+venv/
+
+# Editor / OS files
+.DS_Store
+.idea/
+.vscode/
+
+# Data & uploads
+tmp/
+/tmp/
+uploads/
+
+# Logs
+*.log
+
+# Docker/compose build caches
+**/__pycache__/
+**/.ipynb_checkpoints
